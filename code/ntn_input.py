@@ -46,10 +46,12 @@ def load_embeds(file_path):
     entity_words = [map(int, tree[i][0][0][0][0][0]) for i in range(len(tree))]
     return (word_vecs,entity_words)
 
+
 def load_training_data(data_path=params.data_path):
     training_file = open(data_path+training_string)
     training_data = [line.split('\t') for line in training_file.read().strip().split('\n')]
     return np.array(training_data)
+
 
 def load_dev_data(data_path=params.data_path):
     dev_file = open(data_path+test_string)

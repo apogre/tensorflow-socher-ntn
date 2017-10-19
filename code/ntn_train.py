@@ -6,6 +6,8 @@ import numpy as np
 import numpy.matlib
 import random
 import datetime
+import sys
+
 
 def data_to_indexed(data, entities, relations):
     entity_to_index = {entities[i] : i for i in range(len(entities))}
@@ -34,14 +36,18 @@ def fill_feed_dict(batches, train_both, batch_placeholders, label_placeholders, 
         feed_dict[label_placeholders[i]] = [[0.0] for j in range(len(batches[i]))]
     return feed_dict
 
+
 def run_training():
     print("Begin!")
     #python list of (e1, R, e2) for entire training set in string form
     print("Load training data...")
     raw_training_data = ntn_input.load_training_data(params.data_path)
+    print raw_training_data[:10]
     print("Load entities and relations...")
     entities_list = ntn_input.load_entities(params.data_path)
+    print entities_list[:10]
     relations_list = ntn_input.load_relations(params.data_path)
+    print relations_list[:10]
     #python list of (e1, R, e2) for entire training set in index form
     indexed_training_data = data_to_indexed(raw_training_data, entities_list, relations_list)
     print("Load embeddings...")
@@ -85,6 +91,7 @@ def run_training():
             _, loss_value = sess.run([training, loss], feed_dict=feed_dict)
 
             #TODO: Eval against dev set?
+
 
 def main(argv):
     run_training()
