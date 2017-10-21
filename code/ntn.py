@@ -7,9 +7,11 @@ import random
 # Loss
 # Training
 
+
+#tf.placeholder is used to feed actual training examples. and tf.Variable for trainable variables such as weights (W) and biases (B) for your model.
 #returns a (batch_size*corrupt_size, 2) vector corresponding to [g(T^i), g(T_c^i)] for all i
-def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec,\
-        num_entities, num_relations, slice_size, batch_size, is_eval, label_placeholders):
+def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec, num_entities, num_relations,\
+              slice_size, batch_size, is_eval, label_placeholders):
     print("Beginning building inference:")
     #TODO: We need to check the shapes and axes used here!
     print("Creating variables")
@@ -18,7 +20,7 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
     ten_k = tf.constant([k])
     num_words = len(init_word_embeds)
     E = tf.Variable(init_word_embeds) #d=embed size
-    W = [tf.Variable(tf.truncated_normal([d,d,k])) for r in range(num_relations)]
+    W = [tf.Variable(tf.truncated_normal([d, d, k])) for r in range(num_relations)]
     V = [tf.Variable(tf.zeros([k, 2*d])) for r in range(num_relations)]
     b = [tf.Variable(tf.zeros([k, 1])) for r in range(num_relations)]
     U = [tf.Variable(tf.ones([1, k])) for r in range(num_relations)]
@@ -78,7 +80,7 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
             predictions.append(tf.pack([score_pos, score_neg]))
         else:
             predictions.append(tf.pack([score_pos, tf.reshape(label_placeholders[r], num_rel_r)]))
-        #print("score_pos_and_neg: "+str(predictions[r].get_shape()))
+            #print("score_pos_and_neg: "+str(predictions[r].get_shape()))
 
 
     #print("Concating predictions")

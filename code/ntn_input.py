@@ -5,10 +5,11 @@
 import params
 import scipy.io as sio
 import numpy as np
+import sys
 
 entities_string='/entities.txt'
 relations_string='/relations.txt'
-embeds_string='/initEmbed.mat'
+embeds_string = '/initEmbed.mat'
 training_string='/train.txt'
 test_string='/test.txt'
 dev_string='/dev.txt'
@@ -20,6 +21,7 @@ def load_entities(data_path=params.data_path):
     entities_list = entities_file.read().strip().split('\n')
     entities_file.close()
     return entities_list
+
 
 #input: path of dataset to be used
 #output: python list of relations in dataset
@@ -36,15 +38,19 @@ def load_init_embeds(data_path=params.data_path):
     embeds_path = data_path+embeds_string
     return load_embeds(embeds_path)
 
+
 #input: Generic function to load embeddings from a .mat file
 def load_embeds(file_path):
     mat_contents = sio.loadmat(file_path)
-    words = mat_contents['words']
-    we = mat_contents['We']
-    tree = mat_contents['tree']
+    words = mat_contents['words'] #words embedding
+    we = mat_contents['We'] #100 dimensions
+    tree = mat_contents['tree'] #entity embedding
+    print len(we), we[:10]
+    print len(tree), tree[:10]
+    print len(words), words[0][:20]
     word_vecs = [[we[j][i] for j in range(params.embedding_size)] for i in range(len(words[0]))]
     entity_words = [map(int, tree[i][0][0][0][0][0]) for i in range(len(tree))]
-    return (word_vecs,entity_words)
+    return (word_vecs, entity_words)
 
 
 def load_training_data(data_path=params.data_path):
