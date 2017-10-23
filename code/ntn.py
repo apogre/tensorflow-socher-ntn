@@ -32,7 +32,7 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
 
     #(num_entities, d) matrix where row i cooresponds to the entity embedding (word embedding average) of entity i
     print("Calcing entEmbed...")
-    entEmbed = tf.pack([tf.reduce_mean(tf.gather(E, entword), 0) for entword in ent2word])
+    entEmbed = tf.stack([tf.reduce_mean(tf.gather(E, entword), 0) for entword in ent2word])
     #entEmbed = tf.truncated_normal([num_entities, d])
     print(entEmbed.get_shape())
     predictions = list()
