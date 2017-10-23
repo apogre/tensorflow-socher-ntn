@@ -14,6 +14,7 @@ training_string='/train.txt'
 test_string='/test.txt'
 dev_string='/dev.txt'
 
+
 #input: path of dataset to be used
 #output: python list of entities in dataset
 def load_entities(data_path=params.data_path):
@@ -42,14 +43,14 @@ def load_init_embeds(data_path=params.data_path):
 #input: Generic function to load embeddings from a .mat file
 def load_embeds(file_path):
     mat_contents = sio.loadmat(file_path)
+    mat_show = sio.whosmat(file_path)
+    print mat_show
     words = mat_contents['words'] #words embedding
     we = mat_contents['We'] #100 dimensions
     tree = mat_contents['tree'] #entity embedding
-    print len(we), we[:10]
-    print len(tree), tree[:10]
-    print len(words), words[0][:20]
     word_vecs = [[we[j][i] for j in range(params.embedding_size)] for i in range(len(words[0]))]
     entity_words = [map(int, tree[i][0][0][0][0][0]) for i in range(len(tree))]
+    print len(entity_words), len(entity_words[0])
     return (word_vecs, entity_words)
 
 

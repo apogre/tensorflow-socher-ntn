@@ -61,7 +61,6 @@ def run_training():
 
     num_entities = len(entities_list)
     num_relations = len(relations_list)
-
     num_iters = params.num_iter
     batch_size = params.batch_size
     corrupt_size = params.corrupt_size
@@ -70,11 +69,14 @@ def run_training():
     with tf.Graph().as_default():
         print("Starting to build graph "+str(datetime.datetime.now()))
         batch_placeholders = [tf.placeholder(tf.int32, shape=(None, 3), name='batch_'+str(i)) for i in range(num_relations)]
+        print len(batch_placeholders)
         label_placeholders = [tf.placeholder(tf.float32, shape=(None, 1), name='label_'+str(i)) for i in range(num_relations)]
 
         corrupt_placeholder = tf.placeholder(tf.bool, shape=(1)) #Which of e1 or e2 to corrupt?
         inference = ntn.inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec, \
                                   num_entities, num_relations, slice_size, batch_size, False, label_placeholders)
+
+
         loss = ntn.loss(inference, params.regularization)
         training = ntn.training(loss, params.learning_rate)
 

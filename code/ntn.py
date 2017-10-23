@@ -2,6 +2,7 @@ import tensorflow as tf
 import params
 import ntn_input
 import random
+import sys
 
 # Inference
 # Loss
@@ -28,12 +29,13 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
     print("Calcing ent2word")
     #python list of tf vectors: i -> list of word indices cooresponding to entity i
     ent2word = [tf.constant(entity_i)-1 for entity_i in entity_to_wordvec]
+
     #(num_entities, d) matrix where row i cooresponds to the entity embedding (word embedding average) of entity i
     print("Calcing entEmbed...")
     entEmbed = tf.pack([tf.reduce_mean(tf.gather(E, entword), 0) for entword in ent2word])
     #entEmbed = tf.truncated_normal([num_entities, d])
     print(entEmbed.get_shape())
-
+    sys.exit(0)
     predictions = list()
     print("Beginning relations loop")
     for r in range(num_relations):
