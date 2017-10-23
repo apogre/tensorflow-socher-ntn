@@ -35,15 +35,18 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
     entEmbed = tf.pack([tf.reduce_mean(tf.gather(E, entword), 0) for entword in ent2word])
     #entEmbed = tf.truncated_normal([num_entities, d])
     print(entEmbed.get_shape())
-    sys.exit(0)
     predictions = list()
     print("Beginning relations loop")
     for r in range(num_relations):
+        print batch_placeholders[r].get_shape()
         print("Relations loop "+str(r))
         e1, e2, e3 = tf.split(1, 3, tf.cast(batch_placeholders[r], tf.int32)) #TODO: should the split dimension be 0 or 1?
+        print e1, e2, e3
+
         e1v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e1, name='e1v'+str(r)),[1]))
         e2v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e2, name='e2v'+str(r)),[1]))
         e3v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e3, name='e3v'+str(r)),[1]))
+
         e1v_pos = e1v
         e2v_pos = e2v
         e1v_neg = e1v
