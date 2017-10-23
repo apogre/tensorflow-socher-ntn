@@ -84,7 +84,7 @@ def run_training():
         sess = tf.Session()
 
         # Run the Op to initialize the variables.
-        init = tf.initialize_all_variables()
+        init = tf.global_variables_initializer()
         sess.run(init)
         saver = tf.train.Saver(tf.trainable_variables())
         for i in range(1, num_iters):
@@ -93,7 +93,7 @@ def run_training():
             relation_batches = split_batch(data_batch, num_relations)
 
             if i % params.save_per_iter == 0:
-                saver.save(sess, params.output_path+"/"+params.data_name+str(i)+'.sess')
+                saver.save(sess, params.output_path+params.data_name+str(i)+'.sess')
 
             feed_dict = fill_feed_dict(relation_batches, params.train_both, batch_placeholders, label_placeholders, corrupt_placeholder)
             _, loss_value = sess.run([training, loss], feed_dict=feed_dict)
