@@ -95,7 +95,8 @@ def run_training():
             if i % params.save_per_iter == 0:
                 saver.save(sess, params.output_path+params.data_name+str(i)+'.sess')
 
-            feed_dict = fill_feed_dict(relation_batches, params.train_both, batch_placeholders, label_placeholders, corrupt_placeholder)
+            feed_dict = fill_feed_dict(relation_batches, params.train_both, batch_placeholders, label_placeholders, \
+                                       corrupt_placeholder)
             _, loss_value = sess.run([training, loss], feed_dict=feed_dict)
 
             #TODO: Eval against dev set?
