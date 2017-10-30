@@ -59,7 +59,9 @@ def run_training():
     print indexed_training_data[:10]
     print("Load embeddings...")
     (init_word_embeds, entity_to_wordvec) = ntn_input.load_init_embeds(params.data_path)
-
+    print init_word_embeds[:10]
+    print entity_to_wordvec[:10]
+    sys.exit(0)
     num_entities = len(entities_list)
     num_relations = len(relations_list)
     num_iters = params.num_iter
@@ -76,7 +78,6 @@ def run_training():
         corrupt_placeholder = tf.placeholder(tf.bool, shape=(1)) #Which of e1 or e2 to corrupt?
         inference = ntn.inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec, \
                                   num_entities, num_relations, slice_size, batch_size, False, label_placeholders)
-
 
         loss = ntn.loss(inference, params.regularization)
         training = ntn.training(loss, params.learning_rate)

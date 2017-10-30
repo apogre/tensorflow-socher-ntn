@@ -61,8 +61,8 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
 
         #print("Starting preactivation funcs")
         for slice in range(k):
-            preactivation_pos.append(tf.reduce_sum(e1v_pos*tf.matmul(W[r][:,:,slice], e2v_pos), 0))
-            preactivation_neg.append(tf.reduce_sum(e1v_neg*tf.matmul( W[r][:,:,slice], e2v_neg), 0))
+            preactivation_pos.append(tf.reduce_sum(e1v_pos * tf.matmul(W[r][:, :, slice], e2v_pos), 0))
+            preactivation_neg.append(tf.reduce_sum(e1v_neg * tf.matmul(W[r][:, :, slice], e2v_neg), 0))
 
         preactivation_pos = tf.pack(preactivation_pos)
         preactivation_neg = tf.pack(preactivation_neg)
@@ -96,7 +96,6 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
 
 
 def loss(predictions, regularization):
-
     print("Beginning building loss")
     temp1 = tf.maximum(tf.sub(predictions[1, :], predictions[0, :]) + 1, 0)
     temp1 = tf.reduce_sum(temp1)
@@ -110,7 +109,6 @@ def loss(predictions, regularization):
 
 def training(loss, learningRate):
     print("Beginning building training")
-
     return tf.train.AdagradOptimizer(learningRate).minimize(loss)
 
 

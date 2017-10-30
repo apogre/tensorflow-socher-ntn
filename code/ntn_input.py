@@ -6,6 +6,7 @@ import params
 import scipy.io as sio
 import numpy as np
 import sys
+import pickle
 
 entities_string='/entities.txt'
 relations_string='/relations.txt'
@@ -42,6 +43,7 @@ def load_init_embeds(data_path=params.data_path):
 
 #input: Generic function to load embeddings from a .mat file
 def load_embeds(file_path):
+    word_index = {}
     mat_contents = sio.loadmat(file_path)
     mat_show = sio.whosmat(file_path)
     print mat_show
@@ -50,7 +52,13 @@ def load_embeds(file_path):
     tree = mat_contents['tree'] #entity embedding
     word_vecs = [[we[j][i] for j in range(params.embedding_size)] for i in range(len(words[0]))]
     entity_words = [map(int, tree[i][0][0][0][0][0]) for i in range(len(tree))]
-    print len(entity_words), len(entity_words[0])
+    print entity_words[:10]
+    np_entity_words = np.array([np.array(ent) for ent in entity_words])
+    print np_entity_words[:10]
+    word_index['word_indices'] = np_entity_words
+    word_index['num_words'] = len(word_vecs)
+    pickle.dump(word_index, open('wordIndices.p','wb'))
+    sys.exit(0)
     return (word_vecs, entity_words)
 
 
