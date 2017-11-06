@@ -3,6 +3,7 @@ import params
 import ntn_input
 import random
 import sys
+import datetime
 
 # Inference
 # Loss
@@ -12,7 +13,7 @@ import sys
 #tf.placeholder is used to feed actual training examples. and tf.Variable for trainable variables such as weights (W) and biases (B) for your model.
 #returns a (batch_size*corrupt_size, 2) vector corresponding to [g(T^i), g(T_c^i)] for all i
 def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec, num_entities, num_relations,\
-              slice_size, batch_size, is_eval, label_placeholders):
+              slice_size, batch_size, is_eval, label_placeholders, start_time):
     print("Beginning building inference:")
     #TODO: We need to check the shapes and axes used here!
     print("Creating variables")
@@ -26,32 +27,36 @@ def inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_
     b = [tf.Variable(tf.zeros([k, 1])) for r in range(num_relations)]
     U = [tf.Variable(tf.ones([1, k])) for r in range(num_relations)]
 
-    print("Calcing ent2word")
+    print("ent2word")
     #python list of tf vectors: i -> list of word indices cooresponding to entity i
-    ent2word = [tf.constant(entity_i)-1 for entity_i in entity_to_wordvec]
+    ent2word = [tf.constant(entity_i) for entity_i in entity_to_wordvec]
 
     #(num_entities, d) matrix where row i cooresponds to the entity embedding (word embedding average) of entity i
     print("Calcing entEmbed...")
+
     entEmbed = tf.stack([tf.reduce_mean(tf.gather(E, entword), 0) for entword in ent2word])
-    #entEmbed = tf.truncated_normal([num_entities, d])
     print(entEmbed.get_shape())
+    #entEmbed = tf.truncated_normal([num_entities, d])
+    print datetime.datetime.now() - start_time
     predictions = list()
     print("Beginning relations loop")
+
     for r in range(num_relations):
         print batch_placeholders[r].get_shape()
         print("Relations loop "+str(r))
         e1, e2, e3 = tf.split(1, 3, tf.cast(batch_placeholders[r], tf.int32)) #TODO: should the split dimension be 0 or 1?
         print e1, e2, e3
 
-        e1v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e1, name='e1v'+str(r)),[1]))
-        e2v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e2, name='e2v'+str(r)),[1]))
-        e3v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e3, name='e3v'+str(r)),[1]))
+        e1v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e1, name='e1v'+str(r)), [1]))
+        e2v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e2, name='e2v'+str(r)), [1]))
+        e3v = tf.transpose(tf.squeeze(tf.gather(entEmbed, e3, name='e3v'+str(r)), [1]))
 
         e1v_pos = e1v
         e2v_pos = e2v
         e1v_neg = e1v
         e2v_neg = e3v
         num_rel_r = tf.expand_dims(tf.shape(e1v_pos)[1], 0)
+
         preactivation_pos = list()
         preactivation_neg = list()
 

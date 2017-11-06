@@ -10,11 +10,8 @@ import sys
 
 
 def data_to_indexed(data, entities, relations):
-    print relations
     entity_to_index = {entities[i] : i for i in range(len(entities))}
     relation_to_index = {relations[i] : i for i in range(len(relations))}
-    print "Encoding to integers"
-    print relation_to_index
     indexed_data = [(entity_to_index[data[i][0]], relation_to_index[data[i][1]], \
                      entity_to_index[data[i][2]]) for i in range(len(data)) if data[i][1] in relations]
     return indexed_data
@@ -23,8 +20,8 @@ def data_to_indexed(data, entities, relations):
 def get_batch(batch_size, data, num_entities, corrupt_size):
     random_indices = random.sample(range(len(data)), batch_size)
     #data[i][0] = e1, data[i][1] = r, data[i][2] = e2, random=e3 (corrupted)
-    batch = [(data[i][0], data[i][1], data[i][2], random.randint(0, num_entities-1)) \
-             for i in random_indices for j in range(corrupt_size)]
+    batch = [(data[i][0], data[i][1], data[i][2], random.randint(0, num_entities-1)) for i in random_indices for j in\
+             range(corrupt_size)]
     return batch
 
 
@@ -48,36 +45,38 @@ def run_training():
     #python list of (e1, R, e2) for entire training set in string form
     print("Load training data...")
     raw_training_data = ntn_input.load_training_data(params.data_path)
-    print raw_training_data[:10]
+
     print("Load entities and relations...")
     entities_list = ntn_input.load_entities(params.data_path)
-    print len(entities_list),entities_list[:10]
+
     relations_list = ntn_input.load_relations(params.data_path)
-    print len(relations_list), relations_list[:10]
     #python list of (e1, R, e2) for entire training set in index form
+
     indexed_training_data = data_to_indexed(raw_training_data, entities_list, relations_list)
-    print indexed_training_data[:10]
     print("Load embeddings...")
+
     (init_word_embeds, entity_to_wordvec) = ntn_input.load_init_embeds(params.data_path)
-    print init_word_embeds[:10]
-    print entity_to_wordvec[:10]
-    sys.exit(0)
+
     num_entities = len(entities_list)
     num_relations = len(relations_list)
+
     num_iters = params.num_iter
     batch_size = params.batch_size
     corrupt_size = params.corrupt_size
     slice_size = params.slice_size
 
     with tf.Graph().as_default():
+        start_time = datetime.datetime.now()
         print("Starting to build graph "+str(datetime.datetime.now()))
+
         batch_placeholders = [tf.placeholder(tf.int32, shape=(None, 3), name='batch_'+str(i)) for i in range(num_relations)]
-        print len(batch_placeholders)
+
         label_placeholders = [tf.placeholder(tf.float32, shape=(None, 1), name='label_'+str(i)) for i in range(num_relations)]
 
-        corrupt_placeholder = tf.placeholder(tf.bool, shape=(1)) #Which of e1 or e2 to corrupt?
+        corrupt_placeholder = tf.placeholder(tf.bool, shape=(1)) #Which of e1 or e2 to corrupt? flip on random
+
         inference = ntn.inference(batch_placeholders, corrupt_placeholder, init_word_embeds, entity_to_wordvec, \
-                                  num_entities, num_relations, slice_size, batch_size, False, label_placeholders)
+                                  num_entities, num_relations, slice_size, batch_size, False, label_placeholders, start_time)
 
         loss = ntn.loss(inference, params.regularization)
         training = ntn.training(loss, params.learning_rate)
